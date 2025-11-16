@@ -1,0 +1,34 @@
+@import "tailwindcss";
+@plugin "tailwind-scrollbar-hide";
+@custom-variant dark (&:where(.dark, .dark *));
+
+
+.layout-container {
+    display: flex;
+    flex-direction: row;
+    max-width: 80rem;
+    width: 100%;
+    gap: 20px;
+    margin: auto;
+    align-items: center;
+}
+
+.menu-column {
+    width: 320px;
+    flex-shrink: 0;
+
+}
+
+.slider-column {
+    flex-grow: 1;
+}
+
+@media screen and (max-width: 1023px) {
+    .menu-column {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+    }
+}
