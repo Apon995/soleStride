@@ -21,6 +21,7 @@ export async function GET(req: Request, context: RouteParams) {
 }
 
 
+
 export async function PUT(req: Request, context: RouteParams) {
   try {
     await connectDB();

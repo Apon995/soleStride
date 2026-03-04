@@ -26,17 +26,46 @@ import slugify from "slugify";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 
+const shoeSizes = [
+  "6",
+  "8",
+  "10",
+  "12",
+  "14",
+  "16",
+  "18",
+  "20",
+  "22",
+  "24",
+  "26",
+  "28",
+  "30",
+  "32",
+  "34",
+  "36",
+  "38",
+  "40",
+  "42",
+  "44",
+  "46",
+  "48",
+];
 
-
-interface Brand {
-  id: string;
-  name: string;
-  description?: string;
-  logo?: string;
-  website?: string;
-}
+const colors = [
+  { name: "Black", value: "#000000" },
+  { name: "White", value: "#FFFFFF" },
+  { name: "Red", value: "#DC2626" },
+  { name: "Blue", value: "#2563EB" },
+  { name: "Green", value: "#16A34A" },
+  { name: "Yellow", value: "#CA8A04" },
+  { name: "Purple", value: "#9333EA" },
+  { name: "Pink", value: "#DB2777" },
+  { name: "Gray", value: "#6B7280" },
+  { name: "Brown", value: "#92400E" },
+];
 
 export default function AddProductPage() {
   const initialValue: ProductFormData = {
@@ -73,7 +102,7 @@ export default function AddProductPage() {
     status: "draft",
 
   }
-  
+
   const router = useRouter();
   const [formData, setFormData] = useState<ProductFormData>(initialValue);
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -94,79 +123,34 @@ export default function AddProductPage() {
   const [dragOver, setDragOver] = useState(false);
   const { successToast, errorToast, infoToast, warningToast } = useToasts();
   const [dataInserting, setDatainserting] = useState<boolean>(false);
-  
-  const [ brands  , setBrands] = useState<Brand[]>([])
 
 
 
-     const { data: categories = [] } = useQuery({
-          queryKey: ["categories"],
-          queryFn: async () => {
-              const res = await fetch("/api/categories")
-              if (!res.ok) throw new Error("Failed to fetch");
-              return res.json();
-          }
-      })
-  
 
-    const fetchBrands = async () => {
-
-        try {
-            const res = await fetch("/api/brands")
-            const data = await res.json();
-            // console.log(data)
-            setBrands(data)
-            
-          
-        }
-        catch (error) {
-            console.log(error)
-        }
-
-
-
+  const { data: categories = [] , isLoading : categoriesLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const res = await fetch("/api/categories")
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
     }
+  })
+
+  const { data: brands = [] , isLoading : brandsLoading } = useQuery({
+    queryKey: ["brands"],
+    queryFn: async () => {
+      const res = await fetch("/api/brands")
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    }
+  })
 
 
-  
 
-  const shoeSizes = [
-    "6",
-    "8",
-    "10",
-    "12",
-    "14",
-    "16",
-    "18",
-    "20",
-    "22",
-    "24",
-    "26",
-    "28",
-    "30",
-    "32",
-    "34",
-    "36",
-    "38",
-    "40",
-    "42",
-    "44",
-    "46",
-    "48",
-  ];
 
-  const colors = [
-    { name: "Black", value: "#000000" },
-    { name: "White", value: "#FFFFFF" },
-    { name: "Red", value: "#DC2626" },
-    { name: "Blue", value: "#2563EB" },
-    { name: "Green", value: "#16A34A" },
-    { name: "Yellow", value: "#CA8A04" },
-    { name: "Purple", value: "#9333EA" },
-    { name: "Pink", value: "#DB2777" },
-    { name: "Gray", value: "#6B7280" },
-    { name: "Brown", value: "#92400E" },
-  ];
+
+
+
 
   const steps = [
     { number: 1, title: "Basic Info", icon: <FileText size={16} /> },
@@ -527,21 +511,16 @@ export default function AddProductPage() {
 
 
 
-  // ---All-functions-call-here---
-  useEffect(()=>{
-    
-      fetchBrands(); 
-    },[])
-
+  if(categoriesLoading || brandsLoading ) return <p>Loading...</p>
 
   return (
     <div className=" space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <button onClick={()=> router.back()} className="p-2 hover:cursor-pointer rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+          <Link href={'/admin/products'} className="p-2 hover:cursor-pointer rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
             <ArrowLeft size={20} className="text-gray-600 dark:text-gray-400" />
-          </button>
+          </Link>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Add New Product
@@ -650,7 +629,7 @@ export default function AddProductPage() {
                       className="w-full outline-none px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#47B083] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
                     >
                       <option value="">Select Category</option>
-                      {categories.map((category:Category) => (
+                      {categories.map((category: Category) => (
                         <option key={category.id} value={category.name}>
                           {category.name}
                         </option>
@@ -671,7 +650,7 @@ export default function AddProductPage() {
                       className="w-full outline-none px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#47B083] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
                     >
                       <option value="">Select Brand</option>
-                      {brands.map((brand , index) => (
+                      {brands.map((brand: Brand, index: number) => (
                         <option key={index} value={brand.name}>
                           {brand.name}
                         </option>
@@ -1817,12 +1796,12 @@ export default function AddProductPage() {
                     {formData.featuredImage.url ? (
                       <div className="relative md:h-80 h-64">
                         <Image
-                        src={formData.featuredImage.url}
-                        alt="Featured"
-                        fill 
-                        unoptimized
-                        className="absolute object-cover"
-                      />
+                          src={formData.featuredImage.url}
+                          alt="Featured"
+                          fill
+                          unoptimized
+                          className="absolute object-cover"
+                        />
                       </div>
                     ) : (
                       <div className="w-full h-64 md:h-80 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">

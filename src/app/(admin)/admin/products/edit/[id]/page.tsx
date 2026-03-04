@@ -32,15 +32,60 @@ import Link from "next/link";
 
 
 
+const shoeSizes = [
+    "6",
+    "8",
+    "10",
+    "12",
+    "14",
+    "16",
+    "18",
+    "20",
+    "22",
+    "24",
+    "26",
+    "28",
+    "30",
+    "32",
+    "34",
+    "36",
+    "38",
+    "40",
+    "42",
+    "44",
+    "46",
+    "48",
+];
+
+const colors = [
+    { name: "Black", value: "#000000" },
+    { name: "White", value: "#FFFFFF" },
+    { name: "Red", value: "#DC2626" },
+    { name: "Blue", value: "#2563EB" },
+    { name: "Green", value: "#16A34A" },
+    { name: "Yellow", value: "#CA8A04" },
+    { name: "Purple", value: "#9333EA" },
+    { name: "Pink", value: "#DB2777" },
+    { name: "Gray", value: "#6B7280" },
+    { name: "Brown", value: "#92400E" },
+];
+
+const steps = [
+    { number: 1, title: "Basic Info", icon: <FileText size={16} /> },
+    { number: 2, title: "Pricing", icon: <DollarSign size={16} /> },
+    { number: 3, title: "Inventory", icon: <Package size={16} /> },
+    { number: 4, title: "Media", icon: <Camera size={16} /> },
+    { number: 5, title: "Variants", icon: <Palette size={16} /> },
+    { number: 6, title: "Shipping", icon: <Ruler size={16} /> },
+    { number: 7, title: "SEO", icon: <Tag size={16} /> },
+    { number: 8, title: "preview", icon: <Eye size={16} /> },
+];
+
+
 
 
 export default function EditProductPage() {
     const params = useParams();
-    const router = useRouter();
-    
-
-    console.log("the product id is  " + params.id)
-
     const initialValue: ProductFormData = {
         name: "",
         description: "",
@@ -76,20 +121,21 @@ export default function EditProductPage() {
 
     }
 
-    
-    const {data , isLoading } = useQuery({
-        queryKey : ['product' , params.id],
-        queryFn : async ()=>{
+
+    const { data, isLoading } = useQuery({
+        queryKey: ['product', params.id],
+        queryFn: async () => {
             const res = await fetch(`/api/products/${params.id}`)
-            if(!res.ok) throw new Error("Failed to fetch data");
+            if (!res.ok) throw new Error("Failed to fetch data");
             return res.json();
-        }
+        },
+        enabled: !!params.id
     })
 
-    console.log(data)
 
 
-    const [formData, setFormData] = useState<ProductFormData>(data);
+
+    const [formData, setFormData] = useState<ProductFormData>(initialValue);
 
     const [currentStep, setCurrentStep] = useState<number>(1);
     const [newTag, setNewTag] = useState("");
@@ -109,106 +155,38 @@ export default function EditProductPage() {
     const [dragOver, setDragOver] = useState(false);
     const { successToast, errorToast, infoToast, warningToast } = useToasts();
     const [dataInserting, setDatainserting] = useState<boolean>(false);
-    const [categories, setCategories] = useState<Category[]>([])
-    const [brands, setBrands] = useState<Brand[]>([])
+    const [fetchedData, setFetchData] = useState(null);
+
+    const isChanged = JSON.stringify(formData) == JSON.stringify(fetchedData);
 
 
-    
-
-    const fetchCategories = async () => {
-
-        try {
+    const { data: categories = [] } = useQuery({
+        queryKey: ["categories"],
+        queryFn: async () => {
             const res = await fetch("/api/categories")
-            const data = await res.json();
-            // console.log(data)
-            setCategories(data)
-
-
+            if (!res.ok) throw new Error("Failed to fetch");
+            return res.json();
         }
-        catch (error) {
-            console.log(error)
-        }
+    })
 
 
-
-    }
-
-    const fetchBrands = async () => {
-
-        try {
+    const { data: brands = [] } = useQuery({
+        queryKey: ["brands"],
+        queryFn: async () => {
             const res = await fetch("/api/brands")
-            const data = await res.json();
-            // console.log(data)
-            setBrands(data)
-
-
+            if (!res.ok) throw new Error("Failed to fetch");
+            return res.json();
         }
-        catch (error) {
-            console.log(error)
-        }
+    })
 
 
-
-    }
-
-
-
-
-    const shoeSizes = [
-        "6",
-        "8",
-        "10",
-        "12",
-        "14",
-        "16",
-        "18",
-        "20",
-        "22",
-        "24",
-        "26",
-        "28",
-        "30",
-        "32",
-        "34",
-        "36",
-        "38",
-        "40",
-        "42",
-        "44",
-        "46",
-        "48",
-    ];
-
-    const colors = [
-        { name: "Black", value: "#000000" },
-        { name: "White", value: "#FFFFFF" },
-        { name: "Red", value: "#DC2626" },
-        { name: "Blue", value: "#2563EB" },
-        { name: "Green", value: "#16A34A" },
-        { name: "Yellow", value: "#CA8A04" },
-        { name: "Purple", value: "#9333EA" },
-        { name: "Pink", value: "#DB2777" },
-        { name: "Gray", value: "#6B7280" },
-        { name: "Brown", value: "#92400E" },
-    ];
-
-    const steps = [
-        { number: 1, title: "Basic Info", icon: <FileText size={16} /> },
-        { number: 2, title: "Pricing", icon: <DollarSign size={16} /> },
-        { number: 3, title: "Inventory", icon: <Package size={16} /> },
-        { number: 4, title: "Media", icon: <Camera size={16} /> },
-        { number: 5, title: "Variants", icon: <Palette size={16} /> },
-        { number: 6, title: "Shipping", icon: <Ruler size={16} /> },
-        { number: 7, title: "SEO", icon: <Tag size={16} /> },
-        { number: 8, title: "preview", icon: <Eye size={16} /> },
-    ];
 
 
     useEffect(() => {
-        const productDetails = localStorage.getItem("productDetails");
-        const step = localStorage.getItem("currentStep");
-        if (productDetails) {
-            setFormData((prev) => ({ ...prev, ...JSON.parse(productDetails) }));
+        const EditProductDetails = localStorage.getItem("EditProductDetails");
+        const step = localStorage.getItem("EditcurrentStep");
+        if (EditProductDetails) {
+            setFormData((prev) => ({ ...prev, ...JSON.parse(EditProductDetails) }));
         }
         if (step) {
             setCurrentStep(parseInt(step || "1", 10));
@@ -217,7 +195,7 @@ export default function EditProductPage() {
 
     useEffect(() => {
         const timeout = setTimeout(() => {
-            localStorage.setItem("productDetails", JSON.stringify(formData))
+            localStorage.setItem("EditProductDetails", JSON.stringify(formData))
         }, 1000);
         return () => clearTimeout(timeout);
     }, [formData])
@@ -253,34 +231,40 @@ export default function EditProductPage() {
         }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+
         if (currentStep === 4 && !formData.featuredImage.url) {
             warningToast("Featured image required !", "Please upload featured image.")
             return;
         }
         if (currentStep < steps.length) {
             setCurrentStep((prev) => Math.min(steps.length, prev + 1));
-            localStorage.setItem("currentStep", JSON.stringify(currentStep + 1));
+            localStorage.setItem("EditcurrentStep", JSON.stringify(currentStep + 1));
             return;
         }
+        if (isChanged) return infoToast("No changes detected", "Update something first");
         setDatainserting(true);
 
+
+
         try {
-            const res = await fetch("/api/products", {
-                method: "POST",
+            const res = await fetch(`/api/products/${params.id}`, {
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
             })
+            if (!res.ok) throw new Error("Update failed");
             const data = await res.json();
-            if (data) {
-                successToast("Product uploaded successfully !", "check your product in all products page")
-                localStorage.removeItem("productDetails");
-                localStorage.removeItem("currentStep")
-                setFormData(initialValue)
 
-                setCurrentStep(1)
-            }
+
+            successToast("Product Edited successfully !", "check your product in all products page")
+            localStorage.removeItem("EditProductDetails");
+            localStorage.removeItem("EditcurrentStep")
+            setFormData(initialValue)
+
+            setCurrentStep(1)
+
         } catch {
             errorToast("check product all required fields", "something wrong try again !")
         } finally {
@@ -550,15 +534,17 @@ export default function EditProductPage() {
 
 
 
-
-    // ---All-functions-call-here---
     useEffect(() => {
-        fetchCategories();
-        fetchBrands();
-    }, [])
+        if (data && !Array.isArray(data)) {
+            setFormData(data)
+            setFetchData(data);
+        }
+    }, [data])
 
 
-    if(isLoading) return <p>Loading...</p>
+
+
+    if (isLoading) return <p>Loading...</p>
 
     return (
         <div className=" space-y-6">
@@ -613,9 +599,9 @@ export default function EditProductPage() {
             </div>
 
             <form
-                id="product-form"
+
                 name="product-form"
-                onSubmit={handleSubmit}
+                onSubmit={handleEditSubmit}
                 className="space-y-6 flex-1"
             >
                 {/* Step 1: Basic Information */}
@@ -676,7 +662,7 @@ export default function EditProductPage() {
                                             className="w-full outline-none px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#47B083] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
                                         >
                                             <option value="">Select Category</option>
-                                            {categories.map((category) => (
+                                            {categories.map((category: Category) => (
                                                 <option key={category.id} value={category.name}>
                                                     {category.name}
                                                 </option>
@@ -697,7 +683,7 @@ export default function EditProductPage() {
                                             className="w-full outline-none px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-[#47B083] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors duration-200"
                                         >
                                             <option value="">Select Brand</option>
-                                            {brands.map((brand, index) => (
+                                            {brands.map((brand: Brand, index: number) => (
                                                 <option key={index} value={brand.name}>
                                                     {brand.name}
                                                 </option>
@@ -2379,8 +2365,8 @@ export default function EditProductPage() {
                                 dataInserting ?
                                     <>
                                         <div className="w-4 h-4 border-2 border-t-0 rounded-full animate-spin "></div>
-                                        publishing ....
-                                    </> : " Publish Product"
+                                        Saveing ....
+                                    </> : "Save Product"
                             }
 
                         </button>

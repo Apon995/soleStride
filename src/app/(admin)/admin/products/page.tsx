@@ -22,21 +22,11 @@ import { useRouter } from 'next/navigation';
 
 
 
-interface Category {
-    id: string;
-    name: string;
-    description?: string;
-    parentId: string | null;
-    level: number;
-    highlight: boolean;
-}
-
-
 
 export default function AllProductsPage() {
     const router = useRouter();
     const queryClient = useQueryClient();
-    const [isEditLoading, StartEditLoading] = useTransition();
+    const [isNavigateLoading, StartNavigateLoading] = useTransition();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedStatus, setSelectedStatus] = useState('all');
@@ -61,10 +51,6 @@ export default function AllProductsPage() {
 
     const products = Array.isArray(data)? data : [];
 
-
-
-
-    
 
     const { data: categories = [] } = useQuery({
         queryKey: ["categories"],
@@ -371,12 +357,12 @@ export default function AllProductsPage() {
                 onClose={() => setEditModal(false)}
                 isOpen={isdEditModal}
                 onConfirm={() => {
-                    StartEditLoading(() => {
+                    StartNavigateLoading(() => {
                         router.push(`/admin/products/edit/${editProductId}`)
 
                     })
                 }}
-                isLoading={isEditLoading}
+                isLoading={isNavigateLoading}
 
             />
 
