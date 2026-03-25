@@ -2,15 +2,20 @@
 import { useState } from "react";
 import { Plus, Star, Package, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { Brand } from "@/models/brands";
+import { error } from "console";
+import { useToast } from "@/providers/TostProvider";
+import { useToasts } from "@/hooks/useToasts";
 
 export default function allcategoryandbrands() {
     const router = useRouter();
     const queryClient = useQueryClient();
+    const { successToast } = useToasts();
 
 
-    const { data: categories = [] } = useQuery({
+    const { data: categories = [], isLoading: categoryLoading } = useQuery({
         queryKey: ["categories"],
         queryFn: async () => {
             const res = await fetch("/api/categories");
@@ -19,7 +24,7 @@ export default function allcategoryandbrands() {
         },
     });
 
-    const { data: brands = [] } = useQuery({
+    const { data: brands = [], isLoading: brandsLoading } = useQuery({
         queryKey: ["brands"],
         queryFn: async () => {
             const res = await fetch("/api/brands");
@@ -34,14 +39,42 @@ export default function allcategoryandbrands() {
     const getSubcategories = (parentId: string) => {
         return categories.filter((cat: Category) => cat.parentId === parentId);
     };
+    const mainCategories = categories.filter((cat: Category) => cat.level === 0);
 
 
 
 
+    const handleBrandDelete = useMutation({
+        mutationKey: ["brands", "delete"],
+        mutationFn: async (id: string) => {
+            const res = await fetch(`/api/brands/${id}`, { method: "DELETE" })
+            if (!res.ok) throw new Error("Delete Error try again !")
+            return res.json();
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ["brands"]
+            })
+         successToast("Successfully Deleted ", "The Brand is Deleted ");
+        }
+    })
 
-    const mainCategories = categories.filter((cat:Category) => cat.level === 0);
-     
-    console.log(categories)
+    const handleCategoryDelete = useMutation({
+        mutationKey : ["categories" , "delete"], 
+        mutationFn : async(id : string)=>{
+            const res = await fetch(`/api/categories/${id}`, {method : "DELETE"})
+            if(!res.ok) throw new Error("Something wrong try again!")
+            return res.json()
+        }, 
+        onSuccess:()=>{
+            queryClient.invalidateQueries({
+                queryKey : ["categories"]
+            })
+            successToast("Successfully Deleted ", "The category is Deleted ");
+        }
+    });
+
+
 
     return (
         <div className="space-y-6">
@@ -63,11 +96,13 @@ export default function allcategoryandbrands() {
                 {/* Categories Section */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-                        category ({categories.length})
+                        category ({categoryLoading ? "0" : categories.length})
                     </h2>
 
                     <div className="space-y-4 max-h-96 overflow-y-auto">
-                        {categories.length === 0 ? (
+                        {categoryLoading ? <div className="text-gray-500 dark:text-gray-400 text-center py-8 my-auto">
+                            Loading.....
+                        </div> : categories.length === 0 ? (
                             <p className="text-gray-500 dark:text-gray-400 text-center py-8">
                                 No categories added yet
                             </p>
@@ -76,8 +111,8 @@ export default function allcategoryandbrands() {
                                 {/* Main Categories */}
 
                                 {
-                                    mainCategories.map((category: Category) => (
-                                        <div key={category.id}>
+                                    mainCategories.map((category: Category, index: string) => (
+                                        <div key={index}>
                                             <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700">
                                                 <div className="flex items-center space-x-4">
                                                     <div>
@@ -91,26 +126,27 @@ export default function allcategoryandbrands() {
                                                     </div>
                                                 </div>
 
-                                                <button className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
+                                                <button onClick={()=> handleCategoryDelete.mutate(category._id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
                                                     <Trash2 size={22} />
                                                 </button>
                                             </div>
 
                                             {
-                                                getSubcategories(category.id).map((subCategory: Category) => (
-                                                    <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg ml-8 mt-2 bg-white dark:bg-gray-800">
+                                                getSubcategories(category.id).map((subCategory: Category, index: string) => (
+                                                    <div key={index} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg ml-8 mt-2 bg-white dark:bg-gray-800">
                                                         <div className="flex items-center space-x-4">
                                                             <div>
                                                                 <h3 className="font-medium text-gray-900 dark:text-white">
                                                                     └─ 🏷️ {subCategory.name}
                                                                 </h3>
                                                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                                    Lorem ipsum dolor sit amet consectetur adipisicing
-                                                                    elit. Laboriosam, labore?
+                                                                    {
+                                                                        subCategory.description || "No Description Exists"
+                                                                    }
                                                                 </p>
                                                             </div>
                                                         </div>
-                                                        <button className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
+                                                        <button onClick={()=> handleCategoryDelete.mutate(category._id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
                                                             <Trash2 size={18} />
                                                         </button>
                                                     </div>
@@ -127,11 +163,13 @@ export default function allcategoryandbrands() {
                 {/* Brands Section */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
-                        Brands ({brands.length})
+                        Brands ({brandsLoading ? "0" : brands.length})
                     </h2>
 
                     <div className="space-y-4 max-h-96 overflow-y-auto">
-                        {brands.length === 0 ? (
+                        {brandsLoading ? <div className="text-gray-500 dark:text-gray-400 text-center py-8">
+                            Loading .....
+                        </div> : brands.length === 0 ? (
                             <p className="text-gray-500 dark:text-gray-400 text-center py-8">
                                 No Brands added yet
                             </p>
@@ -144,16 +182,15 @@ export default function allcategoryandbrands() {
                                         <div className="flex items-center space-x-4">
                                             <div>
                                                 <h3 className="font-medium text-gray-900 dark:text-white">
-                                                    📁 (Main)
+                                                    {brand.name}
                                                 </h3>
                                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                    Lorem ipsum dolor sit amet consectetur, adipisicing
-                                                    elit. Minima, asperiores!
+                                                    {brand.description || "No Description Exists"}
                                                 </p>
                                             </div>
                                         </div>
 
-                                        <button className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
+                                        <button onClick={() => handleBrandDelete.mutate(brand._id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
                                             <Trash2 size={22} />
                                         </button>
                                     </div>))

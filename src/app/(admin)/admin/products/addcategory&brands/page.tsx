@@ -106,13 +106,15 @@ const CategoryBrandUpload: NextPage = () => {
         })
 
         const data = await res.json();
-        console.log(data)
+        
+        if (!data.ok) {
+          return errorToast("Something Went Wrong Try Again !")
+        }
 
-        if (data) {
-          successToast("successfully published categories", "New categories added!");
+        successToast("successfully published categories", "New categories added!");
           setCategoryForm(initialvalueCategory);
           setCategories([])
-        }
+          console.log(data)
 
       }
       else if (active == 'brand') {

@@ -4,7 +4,7 @@ export interface ICategory extends Document {
   id : string ;
   name: string;
   description?: string;
-  parentId: Types.ObjectId | null ;
+  parentId: String
   level: number;
   highlight? : boolean;
   
@@ -14,11 +14,7 @@ const CategorySchema = new Schema<ICategory>(
   { id : {type : String , required : true },
     name: { type: String, required: true },
     description : {type : String},
-    parentId: {
-      type : Schema.Types.ObjectId , 
-      ref : "Category", 
-      default : null 
-     },
+    parentId: {type : String},
     level : {type : Number , required : true },
     highlight : {type : Boolean},
    
