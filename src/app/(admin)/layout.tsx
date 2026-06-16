@@ -31,26 +31,26 @@ export default function RootLayout({
 
         <TanstackQuery>
 
-        <ReduxProvider>
-          <ToastProvider>
-            <ThemeProvider>
-              <AdminSidebar />
+          <ReduxProvider>
+            <ToastProvider>
+              <ThemeProvider>
+                <AdminSidebar />
 
-              {/* Main Content */}
-              <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Top Navbar */}
-                <AdminNavbar />
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  {/* Top Navbar */}
+                  <AdminNavbar />
 
-                {/* Main Content Area */}
-                <main className="flex-1 overflow-auto p-4 md:p-6">
+                  {/* Main Content Area */}
+                  <main className="flex-1 overflow-auto p-4 md:p-6">
 
-                  {children}
+                    {children}
 
-                </main>
-              </div>
-            </ThemeProvider>
-          </ToastProvider>
-        </ReduxProvider>
+                  </main>
+                </div>
+              </ThemeProvider>
+            </ToastProvider>
+          </ReduxProvider>
         </TanstackQuery>
       </body>
     </html>

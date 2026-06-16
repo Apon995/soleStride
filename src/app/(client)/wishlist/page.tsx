@@ -1,9 +1,11 @@
 import React from 'react'
 
-export default function sidebarToggle() {
+function page() {
   return (
     <div>
-      
+      Whislist
     </div>
   )
 }
+
+export default page

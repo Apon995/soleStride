@@ -106,7 +106,7 @@ const CategoryBrandUpload: NextPage = () => {
         })
 
         const data = await res.json();
-         console.log("Here is the datas" , data)
+      
         
         if (!res.ok) {
           return errorToast("Something Went Wrong Try Again !")
@@ -127,6 +127,7 @@ const CategoryBrandUpload: NextPage = () => {
         })
 
         const data = await res.json();
+        
         if (data) {
           successToast("successfully published Brands", "New Brands added!");
           setBrandForm(initialvalueBrands);
@@ -141,6 +142,7 @@ const CategoryBrandUpload: NextPage = () => {
     catch (error) {
 
       errorToast(`${error}`, 'something wrong try again !')
+      console.log(error)
 
     }
     finally {

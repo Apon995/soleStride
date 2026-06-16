@@ -36,9 +36,9 @@ export default function RootLayout({
       <body
         className={` ${poppins.className} bg-gray-50 dark:bg-gray-900  antialiased `}
       >
-        
-           <TanstackQuery>
-            
+
+        <TanstackQuery>
+
           <ReduxProvider>
             <ToastProvider>
               <ThemeProvider>
@@ -57,8 +57,8 @@ export default function RootLayout({
               </ThemeProvider>
             </ToastProvider>
           </ReduxProvider>
-           </TanstackQuery>
-       
+        </TanstackQuery>
+
       </body>
     </html>
   );

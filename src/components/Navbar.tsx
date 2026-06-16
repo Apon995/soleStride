@@ -538,6 +538,8 @@ const Navbar = () => {
         </div>
       </div>
 
+      
+
       {/* Mobile menu overlay */}
       <div
         onClick={handleHideBars}

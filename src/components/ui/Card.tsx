@@ -1,6 +1,6 @@
 "use client";
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
 import { Heart, Star } from 'lucide-react';
 import { Product } from '@/types/product.types';
 
@@ -11,6 +11,8 @@ interface CardProps {
 
 const Card = ({ productData }: CardProps) => {
 
+  const [isWish , setIsWish] = useState<boolean>(false);
+
   
 
 
@@ -18,11 +20,11 @@ const Card = ({ productData }: CardProps) => {
 
     <div className="w-full max-w-xs sm:max-w-sm md:max-w-md">
       <div className=" relative group bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl dark:hover:shadow-gray-900/50 transition-all duration-700 ease-out overflow-visible">
-        <button className="absolute  active:scale-85 top-4 left-4 z-30 p-2 bg-white hover:cursor-pointer dark:bg-gray-700 rounded-full shadow-md hover:shadow-lg transition-all duration-300 ">
+        <button onClick={()=> setIsWish(!isWish)} className="absolute  active:scale-85 top-4 left-4 z-30 p-2 bg-white hover:cursor-pointer dark:bg-gray-700 rounded-full shadow-md hover:shadow-lg transition-all duration-300 ">
           <Heart
             size={20}
-            className="text-gray-400 hover:text-red  transition-colors duration-200"
-            fill="currentColor"
+            className="text-gray-400 hover:text-red  transition-colors duration-200 "
+            fill={isWish ? "#47b083" : "currentColor"}
           />
         </button>
 
@@ -89,7 +91,7 @@ const Card = ({ productData }: CardProps) => {
           {/* Title */}
           <div className="mb-4">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-1 
-                     transition-all duration-300 group-hover:text-[#47b083] ">
+                     transition-all duration-300 group-hover:text-[#47b083] line-clamp-1">
               {
                 productData.name || " Jordan Retro High"
               }
@@ -97,7 +99,7 @@ const Card = ({ productData }: CardProps) => {
           </div>
 
           {/* Description */}
-          <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base mb-5 leading-relaxed">
+          <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base mb-5 leading-relaxed line-clamp-1">
             {
               productData.description || "There are no description !!"
             }

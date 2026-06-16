@@ -3,11 +3,13 @@
 import { Trash2 } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToasts } from "@/hooks/useToasts";
+import { useState } from "react";
 
 export default function allcategoryandbrands() {
 
     const queryClient = useQueryClient();
     const { successToast } = useToasts();
+    const [deletingId , setdeletingId] = useState<string | null>(null)
 
 
     const { data: categories = [], isLoading: categoryLoading } = useQuery({
@@ -49,6 +51,7 @@ export default function allcategoryandbrands() {
     const handleBrandDelete = useMutation({
         mutationKey: ["brands", "delete"],
         mutationFn: async (id: string) => {
+            setdeletingId(id)
             const res = await fetch(`/api/brands/${id}`, { method: "DELETE" })
             if (!res.ok) throw new Error("Delete Error try again !")
             return res.json();
@@ -58,13 +61,16 @@ export default function allcategoryandbrands() {
                 queryKey: ["brands"]
             })
             successToast("Successfully Deleted ", "The Brand is Deleted ");
+        },
+        onSettled : () =>{
+            setdeletingId(null)
         }
     })
 
     const handleCategoryDelete = useMutation({
         mutationKey: ["categories", "delete"],
         mutationFn: async (id: string) => {
-
+            setdeletingId(id)
             const res = await fetch(`/api/categories/${id}`, { method: "DELETE" })
             if (!res.ok) throw new Error("Something wrong try again!")
             return res.json()
@@ -74,6 +80,9 @@ export default function allcategoryandbrands() {
                 queryKey: ["categories"]
             })
             successToast("Successfully Deleted ", "The category is Deleted ");
+        },
+        onSettled:()=>{
+            setdeletingId(null)
         }
     });
 
@@ -131,7 +140,10 @@ export default function allcategoryandbrands() {
                                                 <button onClick={() => handleCategoryDelete.mutate(category._id)}
                                                     className={`text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer 
                                                 ${hassubcategories(category.id) ? "hidden" : "block"} `}>
-                                                    <Trash2 size={22} />
+                                                     {
+                                                                deletingId == category._id ? <div className="w-5 h-5 rounded-full border-2 border-t-black animate-spin border-gray-400 "></div> : 
+                                                                <Trash2 size={22} />
+                                                            }
                                                 </button>
                                             </div>
 
@@ -151,7 +163,10 @@ export default function allcategoryandbrands() {
                                                             </div>
                                                         </div>
                                                         <button onClick={() => handleCategoryDelete.mutate(category._id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
-                                                            <Trash2 size={18} />
+                                                            {
+                                                                deletingId == category._id ? <div className="w-5 h-5 rounded-full border-2 border-t-black animate-spin border-gray-400 "></div> : 
+                                                                <Trash2 size={18} />
+                                                            }
                                                         </button>
                                                     </div>
                                                 ))
@@ -195,7 +210,10 @@ export default function allcategoryandbrands() {
                                         </div>
 
                                         <button onClick={() => handleBrandDelete.mutate(brand._id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:cursor-pointer">
-                                            <Trash2 size={22} />
+                                              {
+                                                                deletingId == brand._id ? <div className="w-5 h-5 rounded-full border-2 border-t-black animate-spin border-gray-400 "></div> : 
+                                                                <Trash2 size={22} />
+                                                            }
                                         </button>
                                     </div>))
                                 }

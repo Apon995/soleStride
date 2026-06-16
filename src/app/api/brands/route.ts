@@ -21,6 +21,7 @@ export async function GET() {
 export async function POST(req: Request) {
   await connectDB();
   const body = await req.json();
+
   try {
     const brand = await Brand.create(body);
     return NextResponse.json(brand);

@@ -17,6 +17,6 @@ const BrandSchema = new Schema<IBrand>(
   { timestamps: true }
 );
 
-const Brand = models.Brand || mongoose.model<IBrand>("Brand", BrandSchema);
+export const Brand = models.Brand || mongoose.model<IBrand>("Brand", BrandSchema);
 
-export { Brand };
+
