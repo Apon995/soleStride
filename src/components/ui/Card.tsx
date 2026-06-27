@@ -3,6 +3,8 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import { Heart, Star } from 'lucide-react';
 import { Product } from '@/types/product.types';
+import { useDispatch } from 'react-redux';
+import { addToWishlist } from '@/redux/wishList/wishlistSlice';
 
 
 interface CardProps {
@@ -11,16 +13,18 @@ interface CardProps {
 
 const Card = ({ productData }: CardProps) => {
 
-  const [isWish , setIsWish] = useState<boolean>(false);
+  const [isWish, setIsWish] = useState<boolean>(false);
+  const dispatch = useDispatch();
+
+
+
 
   
-
-
   return (
 
     <div className="w-full max-w-xs sm:max-w-sm md:max-w-md">
       <div className=" relative group bg-white dark:bg-gray-800 rounded-3xl shadow-lg hover:shadow-2xl dark:hover:shadow-gray-900/50 transition-all duration-700 ease-out overflow-visible">
-        <button onClick={()=> setIsWish(!isWish)} className="absolute  active:scale-85 top-4 left-4 z-30 p-2 bg-white hover:cursor-pointer dark:bg-gray-700 rounded-full shadow-md hover:shadow-lg transition-all duration-300 ">
+        <button onClick={() => (setIsWish(!isWish), dispatch(addToWishlist(productData)))} className="absolute  active:scale-85 top-4 left-4 z-30 p-2 bg-white hover:cursor-pointer dark:bg-gray-700 rounded-full shadow-md hover:shadow-lg transition-all duration-300 ">
           <Heart
             size={20}
             className="text-gray-400 hover:text-red  transition-colors duration-200 "

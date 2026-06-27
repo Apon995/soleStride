@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authToggleReducer from "@/redux/auth/AuthToggleSlice";
+import wishlistReducer from '@/redux/wishList/wishlistSlice'
 
 
 
 export const store = configureStore({
     reducer: {
          authToggle : authToggleReducer,
+         wishlist : wishlistReducer
     }
 })
 

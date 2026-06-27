@@ -346,7 +346,7 @@ const Navbar = () => {
                   </button>
                   {/* -------wishlist---- */}
                   <button
-                    onClick={() => setIsWhishlist(true)}
+                    onClick={() => setIsWhishlist(!isWishlist)}
                
                     className={`p-2 rounded-full hover:cursor-pointer relative ${scrolled
                         ? "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -691,6 +691,8 @@ const Navbar = () => {
         isOpen={isWishlist}
         onClose={() => setIsWhishlist(false)}
       />
+      
+      
       <CartSidebar isOpen={isCart} onClose={() => setIsCart(false)} />
 
       {isAuthModal && <AuthModal onClose={() => dispatch(authModalClose())} />}

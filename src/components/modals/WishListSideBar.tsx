@@ -1,7 +1,8 @@
 "use client";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, Heart, ShoppingBag, Trash2, Plus, Minus } from 'lucide-react';
 import SafeMotion from '@/wrappers/SafeMotion';
+import { useSelector } from 'react-redux';
 
 
 // Types
@@ -21,72 +22,14 @@ interface WishlistSidebarProps {
   onClose: () => void;
 }
 
-// Mock data
-const mockWishlistItems: Product[] = [
-  {
-    id: '1',
-    name: 'Nike Air Max 270',
-    price: 150,
-    originalPrice: 180,
-    image: '/api/placeholder/80/80',
-    size: 'US 9',
-    color: 'Black/White',
-    quantity: 1
-  },
-  {
-    id: '2',
-    name: 'Adidas Ultraboost 21',
-    price: 180,
-    image: '/api/placeholder/80/80',
-    size: 'US 8.5',
-    color: 'Core Black',
-    quantity: 1
-  },
-  {
-    id: '3',
-    name: 'New Balance 574',
-    price: 85,
-    originalPrice: 100,
-    image: '/api/placeholder/80/80',
-    size: 'US 10',
-    color: 'Navy Blue',
-    quantity: 1
-  },
-
-  {
-    id: '4',
-    name: 'Nike Air Max 270',
-    price: 150,
-    originalPrice: 180,
-    image: '/api/placeholder/80/80',
-    size: 'US 9',
-    color: 'Black/White',
-    quantity: 1
-  },
-  {
-    id: '5',
-    name: 'Adidas Ultraboost 21',
-    price: 180,
-    image: '/api/placeholder/80/80',
-    size: 'US 8.5',
-    color: 'Core Black',
-    quantity: 1
-  },
-  {
-    id: '6',
-    name: 'New Balance 574',
-    price: 85,
-    originalPrice: 100,
-    image: '/api/placeholder/80/80',
-    size: 'US 10',
-    color: 'Navy Blue',
-    quantity: 1
-  }
-];
 
 const WishlistSidebar = ({ isOpen, onClose }: WishlistSidebarProps) => {
-  const [items, setItems] = useState<Product[]>(mockWishlistItems);
+  const data = useSelector((state: any) => state?.wishlist.items)
+  const [items, setItems] = useState<Product[]>(data);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [totalItems , setTotalitems] = useState<number>(0);
+  const [totalPrice , setTotalprice] = useState<number>(0)
+
 
   const removeItem = (id: string) => {
     setItems(prev => prev.filter(item => item.id !== id));
@@ -112,8 +55,17 @@ const WishlistSidebar = ({ isOpen, onClose }: WishlistSidebarProps) => {
     items.forEach(moveToCart);
   };
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+   
+     useEffect(()=>{
+        const total = items?.reduce((sum, item) => sum + item.quantity, 0);
+     setTotalitems(total)
+     const price = items?.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+     setTotalprice(price)
+     },[])
+     
+  
+  
 
   const handleClose = () => {
     setIsAnimating(true);
@@ -122,6 +74,7 @@ const WishlistSidebar = ({ isOpen, onClose }: WishlistSidebarProps) => {
       setIsAnimating(false);
     }, 300);
   };
+
 
   return (
 
@@ -153,7 +106,7 @@ const WishlistSidebar = ({ isOpen, onClose }: WishlistSidebarProps) => {
       <div className="flex flex-col h-full">
         {/* Items List */}
         <div className="flex-1 overflow-y-auto p-3">
-          {items.length === 0 ? (
+          {items?.length === 0 ? (
             // Empty State
             <div className="flex flex-col items-center justify-center h-full text-center py-12">
               <div className="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6">
@@ -176,7 +129,7 @@ const WishlistSidebar = ({ isOpen, onClose }: WishlistSidebarProps) => {
             // Items List
             <div className="space-y-4">
 
-              {items.map((item, index) => (
+              {items?.map((item, index) => (
                 <SafeMotion
                   layout
                   key={item.id}
@@ -265,7 +218,7 @@ const WishlistSidebar = ({ isOpen, onClose }: WishlistSidebarProps) => {
         </div>
 
         {/* Footer - Only show when items exist */}
-        {items.length > 0 && (
+        {items?.length > 0 && (
           <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-900 mb-[5.5rem]">
             {/* Total */}
             <div className="flex justify-between items-center mb-4">
